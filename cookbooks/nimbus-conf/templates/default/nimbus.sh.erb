@@ -1,0 +1,61 @@
+!/bin/bash
+#
+# Copyright (c) 2011 by AT&T, Inc
+# All rights reserved.
+#
+#ident  "@(#)nimbus      1.5     10/11/30 SMI"
+
+SYSRAMSIZE=`free -m | grep Mem: | awk '{print $2 - $2 % 100;}'`
+SYSRAMSZDIGITS="${#SYSRAMSIZE}"
+
+NIMBUS_DBNAME=`hostname`
+export NIMBUS_DBNAME
+
+if [ -z "$NIMBUS_HOME" ]; then
+NIMBUS_HOME=/opt/app/<%= node[:bsca_nimbus] %>
+fi
+export NIMBUS_HOME
+
+####################################################
+# NOTE: this remote jmx configuration is unsecured
+#       and production implementations should
+#       the security options before exposure if
+#       existing network restrictions will not
+#       secure it
+####################################################
+CATALINA_OPTS="-Dcom.sun.management.jmxremote \
+-Dcom.sun.management.jmxremote.port=8999 \
+-Dcom.sun.management.jmxremote.ssl=false \
+-Dcom.sun.management.jmxremote.authenticate=false \
+-Djava.rmi.server.hostname=`hostname`"
+export CATALINA_OPTS
+
+NIMBUS_LOG=`hostname`.log
+export NIMBUS_LOG
+
+JAVA_HOME=$NIMBUS_HOME/jdk
+export JAVA_HOME
+
+JAVA_OPTS="-server -d64 -Xms512M -Xmx$(echo -n $SYSRAMSIZE)M -DHOSTNAME=`hostname` -Dhazelcast.logging.type=log4j -Dhazelcast.jmx=true -Driak.pb.ip=<%= node['ipaddress'] %> -Driak.pb.port=8087"
+export JAVA_OPTS
+
+JRE_HOME=$JAVA_HOME/jre
+export JRE_HOME
+
+case "$1" in
+start)
+        [ -f $NIMBUS_HOME/tomcat/bin/startup.sh ] || (echo "ERROR: Nimbus install is bad!" && exit -1)
+        echo Calling tomcat startup using NIMBUS_HOME=$NIMBUS_HOME
+        echo Calling tomcat startup using JAVA_OPTS=$JAVA_OPTS
+        $NIMBUS_HOME/tomcat/bin/startup.sh
+        ;;
+stop)
+        pkill java
+        ;;
+*)
+        echo "Usage: $0 { start | stop }"
+        exit 1
+        ;;
+esac
+exit 0
+
