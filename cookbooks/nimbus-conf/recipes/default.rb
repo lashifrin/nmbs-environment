@@ -70,7 +70,7 @@ end
 #end
 
 remote_file "/opt/app/bsca/nimbus/tomcat/webapps/nimbus.war" do
- source "http://172.16.31.21:8081/artifactory/libs-release-local/nimbus/nimbus/2.2/nimbus-2.2.war"
+ source "http://172.16.31.21:8081/artifactory/libs-release-local/nimbus/nimbus/2.3/nimbus-2.3.war"
  owner "nimbus"
  group "nimbus"
  mode "0777"
