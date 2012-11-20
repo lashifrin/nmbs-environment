@@ -194,7 +194,7 @@ case "$1" in
 	}
 	chown $TOMCAT7_USER "$JVM_TMP"
 
-	catalina_sh start $SECURITY
+	## catalina_sh start $SECURITY
 	sleep 5
 	if start-stop-daemon --test --start --pidfile "$CATALINA_PID" \
 	--user $TOMCAT7_USER --exec "$JAVA_HOME/bin/java" \
